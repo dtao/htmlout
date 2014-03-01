@@ -102,28 +102,34 @@ function applyStyle(node, win) {
   if (style.color) {
     var color = nearestColor(style.color, supportedColors);
     var sequence = colorSequences[color.name];
-    text = sequence[0] + text + sequence[1];
+    text = applySequence(text, sequence);
   }
 
   if (style.backgroundColor) {
     var bgColor = nearestColor(style.backgroundColor, supportedColors);
-    var sequence = bgColorSequences[bgColor.name];
-    text = sequence[0] + text + sequence[1];
+    var bgSequence = bgColorSequences[bgColor.name];
+    text = applySequence(text, bgSequence);
   }
 
   if (style.fontStyle === 'italic') {
-    text = styleSequences.italic[0] + text + styleSequences.italic[1];
+    text = applySequence(text, styleSequences.italic);
   }
 
   if (style.fontWeight === 'bold') {
-    text = styleSequences.bold[0] + text + styleSequences.bold[1];
+    text = applySequence(text, styleSequences.bold);
   }
 
   if (style.textDecoration === 'underline') {
-    text = styleSequences.underline[0] + text + styleSequences.underline[1];
+    text = applySequence(text, styleSequences.underline);
+  } else if (style.textDecoration === 'strikethrough') {
+    text = applySequence(text, styleSequences.strikethrough);
   }
 
   return text;
+}
+
+function applySequence(text, sequence) {
+  return sequence[0] + text + sequence[1];
 }
 
 function forEach(collection, fn) {
