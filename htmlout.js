@@ -68,13 +68,13 @@ var jsdom = require('jsdom').jsdom,
 /**
  * @example
  * htmlout('<span style="color: #f24;">Hello</span>, <span style="color: #4f4;">world</span>!');
- * // => '\x1B[31mHello\x1B[39m, \x1B[32mworld\x1B[39m!'
+ * // => '\x1B[91mHello\x1B[39m, \x1B[92mworld\x1B[39m!'
  *
  * htmlout('<span style="text-decoration: underline;">foo</span>');
  * // => '\x1B[4mfoo\x1B[24m'
  *
  * htmlout('<html><style>.yellow { color: #ff4; }</style><span class="yellow">foo</span></html>');
- * // => '\x1B[33mfoo\x1B[39m'
+ * // => '\x1B[93mfoo\x1B[39m'
  */
 function htmlout(html) {
   var doc = jsdom(html),
