@@ -1,10 +1,10 @@
 {
-  "name": "constyle",
+  "name": "htmlout",
   "version": "0.1.0",
-  "description": "Style console output with HTML",
-  "main": "constyle.js",
+  "description": "HTML-styled console output",
+  "main": "htmlout.js",
   "scripts": {
-    "test": "autodoc -t constyle.js"
+    "test": "autodoc -t htmlout.js"
   },
   "keywords": [
     "html",
@@ -14,7 +14,7 @@
   "license": "MIT",
   "dependencies": {
     "jsdom": "~ 0.10.1",
-    "nearest-color": "0.1.0"
+    "nearest-color": "0.2.0"
   },
   "devDependencies": {
     "autodoc": "~ 0.6.1",

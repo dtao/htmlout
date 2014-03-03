@@ -1,6 +1,3 @@
-var jsdom = require('jsdom').jsdom,
-    nearestColor = require('nearest-color');
-
 var supportedColors = {
   white: '#fff',
   black: '#000',
@@ -65,18 +62,21 @@ var styleSequences = {
   strikethrough: ['\x1B[9m',  '\x1B[29m']
 };
 
+var jsdom = require('jsdom').jsdom,
+    nearestColor = require('nearest-color').from(supportedColors);
+
 /**
  * @example
- * constyle('<span style="color: #f24;">Hello</span>, <span style="color: #4f4;">world</span>!');
+ * htmlout('<span style="color: #f24;">Hello</span>, <span style="color: #4f4;">world</span>!');
  * // => '\x1B[31mHello\x1B[39m, \x1B[32mworld\x1B[39m!'
  *
- * constyle('<span style="text-decoration: underline;">foo</span>');
+ * htmlout('<span style="text-decoration: underline;">foo</span>');
  * // => '\x1B[4mfoo\x1B[24m'
  *
- * constyle('<html><style>.yellow { color: #ff4; }</style><span class="yellow">foo</span></html>');
+ * htmlout('<html><style>.yellow { color: #ff4; }</style><span class="yellow">foo</span></html>');
  * // => '\x1B[33mfoo\x1B[39m'
  */
-function constyle(html) {
+function htmlout(html) {
   var doc = jsdom(html),
       win = doc.parentWindow;
 
@@ -121,13 +121,13 @@ function applyStyle(node, win) {
 
   var style = win.getComputedStyle(node);
   if (style.color) {
-    var color = nearestColor(style.color, supportedColors);
+    var color = nearestColor(style.color);
     var sequence = colorSequences[color.name];
     text = applySequence(text, sequence);
   }
 
   if (style.backgroundColor) {
-    var bgColor = nearestColor(style.backgroundColor, supportedColors);
+    var bgColor = nearestColor(style.backgroundColor);
     var bgSequence = bgColorSequences[bgColor.name];
     text = applySequence(text, bgSequence);
   }
@@ -157,4 +157,4 @@ function forEach(collection, fn) {
   Array.prototype.forEach.call(collection, fn);
 }
 
-module.exports = constyle;
+module.exports = htmlout;
