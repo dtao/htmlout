@@ -26,3 +26,7 @@ Now we pass that to `htmlout`:
 ```javascript
 console.log(htmlout(html));
 ```
+
+Output:
+
+![Console output](http://i.imgur.com/cqBE08b.png)
