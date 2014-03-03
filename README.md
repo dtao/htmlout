@@ -1,6 +1,6 @@
 # htmlout
 
-HTML-styled console output.
+This library lets you use (a very restricted subset of) HTML to style console output.
 
 ## Example
 
@@ -30,3 +30,7 @@ console.log(htmlout(html));
 Output:
 
 ![Console output](http://i.imgur.com/cqBE08b.png)
+
+## Caveat
+
+I've barely just started this project. It is not even close to complete. It's like 1% functional.
