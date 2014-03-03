@@ -1,7 +1,7 @@
 fs = require('fs')
 https = require('https')
 hljs = require('highlight.js')
-htmlout = require('./htmlout')
+htmlout = require('../htmlout')
 
 # Usage: coffee demo.coffee [name of highlight.js theme]
 theme = if process.argv.length > 2 then process.argv.pop() else 'default'
