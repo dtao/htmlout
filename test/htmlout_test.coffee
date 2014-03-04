@@ -18,3 +18,12 @@ describe 'htmlout', ->
     htmlout(html).should.eql(
       '\x1B[92mHello\x1B[39m\x1B[34m there, \x1B[39m\x1B[91mworld!\x1B[39m'
     )
+
+  it 'understands stylesheets', ->
+    css =
+      '''
+      .highlight { color: #ff0; }
+      '''
+    htmlout.withCSS(css)('<span class="highlight">blah</span>').should.eql(
+      '\x1B[93mblah\x1B[39m'
+    )

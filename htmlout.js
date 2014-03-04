@@ -76,17 +76,47 @@ var jsdom = require('jsdom').jsdom,
  * htmlout('<html><style>.yellow { color: #ff4; }</style><span class="yellow">foo</span></html>');
  * // => '\x1B[93mfoo\x1B[39m'
  */
-function htmlout(html) {
-  var doc = jsdom(html),
+function htmlout(html, options) {
+  var doc = jsdom('<html><head></head><body></body></html>'),
       win = doc.parentWindow;
 
+  options || (options = {});
+
+  if (options.css) {
+    options.css.forEach(function(css) {
+      var styleNode = doc.createElement('STYLE');
+      styleNode.textContent = css;
+      doc.head.appendChild(styleNode);
+    });
+  }
+
+  doc.body.innerHTML = html;
+
   var buffer = [];
-  forEach(doc.childNodes, function(node) {
+  forEach(doc.body.childNodes, function(node) {
     output(node, win, buffer);
   });
 
   return buffer.join('');
 }
+
+htmlout.withCSS = function withCSS(css) {
+  var htmloutBase = htmlout;
+
+  var result = function htmlout(html, options) {
+    options || (options = {});
+    options.css || (options.css = []);
+    options.css.push(css);
+
+    return htmloutBase(html, options);
+  };
+
+  for (var prop in htmloutBase) {
+    result[prop] = htmloutBase[prop];
+  }
+
+  return result;
+};
 
 function output(node, win, buffer) {
   if (node.nodeName === 'STYLE' || node.nodeName === 'SCRIPT') {
