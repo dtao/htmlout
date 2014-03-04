@@ -70,8 +70,13 @@ var defaultStylesheet =
   'del, strike { text-decoration: strikethrough; }\n' +
   'pre { white-space: pre; }';
 
-var jsdom = require('jsdom').jsdom,
-    nearestColor = require('nearest-color').from(supportedColors);
+var fs = require('fs'),
+    path = require('path'),
+    jsdom = require('jsdom').jsdom;
+
+var extendedColorsFile = path.join(__dirname, 'data', 'extendedColors.json'),
+    extendedColors = JSON.parse(fs.readFileSync(extendedColorsFile, 'utf8')),
+    nearestColor = require('nearest-color').from(supportedColors).or(invert(extendedColors));
 
 /**
  * @example
@@ -168,7 +173,7 @@ function applyStyle(textNode, style, win) {
   if (style.color) {
     var color = nearestColor(style.color);
     if (color) {
-      var sequence = colorSequences[color.name];
+      var sequence = getColorSequence(color.name);
       text = applySequence(text, sequence);
     }
   }
@@ -196,6 +201,26 @@ function applyStyle(textNode, style, win) {
   }
 
   return text;
+}
+
+/**
+ * This is VERY stupid and deserves refactoring in the near future. Basically,
+ * I structured colors and extendedColors differently; so if this is the name of
+ * a color, then it's a "standard" color, but if it's a number, then it denotes
+ * an extended color.
+ *
+ * Really I should change the API of nearest-color so that you can associate
+ * arbitrary data w/ a color. That way I wouldn't need to do the color-name-to-
+ * sequence mapping.
+ */
+function getColorSequence(name) {
+  var sequence = colorSequences[name];
+
+  if (!sequence) {
+    sequence = ['\x1B[38;5;' + name + 'm', '\x1B[39m'];
+  }
+
+  return sequence;
 }
 
 function applySequence(text, sequence) {
@@ -265,6 +290,17 @@ function ensureLineBreakAfterBlock(buffer, style) {
 
 function forEach(collection, fn) {
   Array.prototype.forEach.call(collection, fn);
+}
+
+/**
+ * This method exists because I was dumb and made extendedColors.json backwards.
+ */
+function invert(object) {
+  var inverted = {};
+  for (var prop in object) {
+    inverted[object[prop]] = prop;
+  }
+  return inverted;
 }
 
 module.exports = htmlout;

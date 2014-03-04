@@ -10,7 +10,7 @@ describe 'htmlout', ->
 
   it 'applies parent styling to text nodes', ->
     html =
-      '<div style="color: #00f;">' +
+      '<div style="color: #1e90ff;">' +
         '<span style="color: #0f0;">Hello</span>' +
         ' there, ' +
         '<span style="color: #f00;">world!</span>' +
@@ -61,6 +61,7 @@ describe 'htmlout', ->
       '''
     )
 
+  # TODO: I'm not happy about this test. Need to revisit block behavior.
   it 'inserts line breaks after block-level elements', ->
     html =
       '''
@@ -78,6 +79,11 @@ describe 'htmlout', ->
       '''
     htmlout.withCSS(css)('<span class="highlight">blah</span>').should.eql(
       '\x1B[93mblah\x1B[39m'
+    )
+
+  it 'can apply extended colors', ->
+    htmlout('<span style="color: #005FFF;">howdy</span>').should.eql(
+      '\x1B[38;5;27mhowdy\x1B[39m'
     )
 
   it 'defaults <strong> and <b> elements to bold', ->
