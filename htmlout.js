@@ -100,26 +100,18 @@ function output(node, win, buffer) {
     return;
   }
 
-  switch (node.nodeType) {
-    case 1: // element
-      buffer.push(applyStyle(node, win));
-      break;
-
-    case 3: // text node
-      buffer.push(node.textContent);
-      break;
+  if (isTextNode(node)) {
+    buffer.push(applyStyle(node.parentNode, node.textContent, win));
   }
 }
 
 function hasChildren(node) {
-  return node.childNodes.length > 1 ||
-    (node.childNodes.length === 1 && node.childNodes[0].nodeType !== 3);
+  return node.childNodes.length > 0;
 }
 
-function applyStyle(node, win) {
-  var text = node.textContent;
+function applyStyle(node, text, win) {
+  var style = isElement(node) ? win.getComputedStyle(node) : {};
 
-  var style = win.getComputedStyle(node);
   if (style.color) {
     var color = nearestColor(style.color);
     var sequence = colorSequences[color.name];
@@ -151,6 +143,14 @@ function applyStyle(node, win) {
 
 function applySequence(text, sequence) {
   return sequence[0] + text + sequence[1];
+}
+
+function isElement(node) {
+  return node && node.nodeType === 1;
+}
+
+function isTextNode(node) {
+  return node && node.nodeType === 3;
 }
 
 function forEach(collection, fn) {
