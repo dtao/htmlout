@@ -46,6 +46,21 @@ describe 'htmlout', ->
       '''
     )
 
+  it 'treats whitespace as significant within <pre> elements', ->
+    html =
+      '''
+      <pre><code>var foo = <span class="function-def">function() {
+        return 'blah';
+      }</span></code></pre>
+      '''
+    htmlout(html).should.eql(
+      '''
+      var foo = function() {
+        return 'blah';
+      }
+      '''
+    )
+
   it 'inserts line breaks after block-level elements', ->
     html =
       '''

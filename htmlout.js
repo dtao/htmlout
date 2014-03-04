@@ -139,7 +139,7 @@ function output(node, win, buffer) {
     });
 
   } else if (isTextNode(node)) {
-    buffer.push(applyStyle(node, style));
+    buffer.push(applyStyle(node, style, win));
   }
 
   if (isElement(node) && (style.display === 'block')) {
@@ -151,10 +151,10 @@ function hasChildren(node) {
   return node.childNodes.length > 0;
 }
 
-function applyStyle(textNode, style) {
+function applyStyle(textNode, style, win) {
   var text = textNode.textContent;
 
-  if (style.whiteSpace !== 'pre') {
+  if (findStyle(textNode, 'whiteSpace', win) !== 'pre') {
     text = text.replace(/\s+/g, ' ');
 
     if (isFirstChild(textNode)) {
@@ -212,6 +212,24 @@ function getStyle(node, win) {
   }
 
   return isElement(node) ? win.getComputedStyle(node) : {};
+}
+
+function findStyle(node, property, win) {
+  if (isTextNode(node)) {
+    node = node.parentNode;
+  }
+
+  var style = win.getComputedStyle(node);
+  while (!style[property]) {
+    node = node.parentNode;
+    if (!isElement(node)) {
+      break;
+    }
+
+    style = win.getComputedStyle(node);
+  }
+
+  return style[property];
 }
 
 function isFirstChild(textNode) {
