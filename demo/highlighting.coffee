@@ -19,18 +19,8 @@ request = https.get "https://raw.github.com/isagalaev/highlight.js/master/src/st
     css += data
 
   res.on 'end', ->
-    # Hack! Inject CSS into html.
-    html =
-      """
-      <html>
-        <head>
-          <style>#{css}</style>
-        </head>
-        <body>#{html}</body>
-      </html>
-      """
-
-    console.log(htmlout(html))
+    output = htmlout.withCSS(css)
+    console.log(output('<pre class="hljs">' + html + '</pre>'))
 
 request.on 'error', (e) ->
   console.error("Failed to download CSS: #{e.message}")

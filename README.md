@@ -7,17 +7,8 @@ This library lets you use (a very restricted subset of) HTML to style console ou
 Say you have this string in a variable called `html`:
 
 ```html
-<html>
-  <style>
-    strong { font-weight: bold; }
-    strike { text-decoration: strikethrough; }
-    u { text-decoration: underline; }
-  </style>
-
-  <p>
-    <span style="color: #0f0">Hello!</span> <strong>This text should be bold.</strong>
-    And then <strike>here we have struck-out text</strike>, <u>underlined text</u>, etc.
-  </p>
+<span style="color: #0f0">Hello!</span> <strong>This text should be bold.</strong>
+And then <strike>here we have struck-out text</strike>, <u>underlined text</u>, etc.
 </html>
 ```
 
