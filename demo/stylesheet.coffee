@@ -4,7 +4,6 @@ css =
   '''
   .info {
     color: blue;
-    background-color: gray;
   }
 
   .success {
@@ -19,7 +18,7 @@ css =
 
   .fail {
     color: red;
-    font-style: italic;
+    background-color: yellow;
     font-weight: bold;
   }
   '''
