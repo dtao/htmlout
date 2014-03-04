@@ -62,6 +62,12 @@ var styleSequences = {
   strikethrough: ['\x1B[9m',  '\x1B[29m']
 };
 
+var defaultStylesheet =
+  'b, strong { font-weight: bold; }\n' +
+  'i, em { font-style: italic; }\n' +
+  'u { text-decoration: underline; }\n' +
+  'del, strike { text-decoration: strikethrough; }';
+
 var jsdom = require('jsdom').jsdom,
     nearestColor = require('nearest-color').from(supportedColors);
 
@@ -81,14 +87,14 @@ function htmlout(html, options) {
       win = doc.parentWindow;
 
   options || (options = {});
+  options.css || (options.css = []);
 
-  if (options.css) {
-    options.css.forEach(function(css) {
-      var styleNode = doc.createElement('STYLE');
-      styleNode.textContent = css;
-      doc.head.appendChild(styleNode);
-    });
-  }
+  options.css.unshift(defaultStylesheet);
+  options.css.forEach(function(css) {
+    var styleNode = doc.createElement('STYLE');
+    styleNode.textContent = css;
+    doc.head.appendChild(styleNode);
+  });
 
   doc.body.innerHTML = html;
 

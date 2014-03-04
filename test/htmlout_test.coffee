@@ -27,3 +27,23 @@ describe 'htmlout', ->
     htmlout.withCSS(css)('<span class="highlight">blah</span>').should.eql(
       '\x1B[93mblah\x1B[39m'
     )
+
+  it 'defaults <strong> and <b> elements to bold', ->
+    htmlout('<strong>foo</strong> bar <b>baz</b>').should.eql(
+      '\x1B[1mfoo\x1B[22m bar \x1B[1mbaz\x1B[22m'
+    )
+
+  it 'defaults <em> and <i> elements to italic', ->
+    htmlout('<em>foo</em> bar <i>baz</i>').should.eql(
+      '\x1B[3mfoo\x1B[23m bar \x1B[3mbaz\x1B[23m'
+    )
+
+  it 'defaults <u> elements to underlined', ->
+    htmlout('<u>blah</u>').should.eql(
+      '\x1B[4mblah\x1B[24m'
+    )
+
+  it 'defaults <strike> and <del> elements to strikethrough', ->
+    htmlout('<strike>struck</strike> and <del>deleted</del>').should.eql(
+      '\x1B[9mstruck\x1B[29m and \x1B[9mdeleted\x1B[29m'
+    )
