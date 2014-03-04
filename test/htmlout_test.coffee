@@ -19,6 +19,33 @@ describe 'htmlout', ->
       '\x1B[92mHello\x1B[39m\x1B[34m there, \x1B[39m\x1B[91mworld!\x1B[39m'
     )
 
+  it 'defaults to treating whitespace as insignificant', ->
+    html =
+      '''
+        <p>
+          This is a paragraph.  It has two spaces after each sentence.  It also
+          has line breaks in it.  All of that should be collapsed.
+        </p>
+      '''
+    htmlout(html).should.eql('This is a paragraph. It has two spaces after ' +
+      'each sentence. It also has line breaks in it. All of that should be ' +
+      'collapsed.')
+
+  it 'treats whitespace as significant for <pre> elements', ->
+    html =
+      '''
+      <pre>var foo = function() {
+        return 'blah';
+      }</pre>
+      '''
+    htmlout(html).should.eql(
+      '''
+      var foo = function() {
+        return 'blah';
+      }
+      '''
+    )
+
   it 'understands stylesheets', ->
     css =
       '''

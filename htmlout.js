@@ -66,7 +66,8 @@ var defaultStylesheet =
   'b, strong { font-weight: bold; }\n' +
   'i, em { font-style: italic; }\n' +
   'u { text-decoration: underline; }\n' +
-  'del, strike { text-decoration: strikethrough; }';
+  'del, strike { text-decoration: strikethrough; }\n' +
+  'pre { white-space: pre; }';
 
 var jsdom = require('jsdom').jsdom,
     nearestColor = require('nearest-color').from(supportedColors);
@@ -137,7 +138,7 @@ function output(node, win, buffer) {
   }
 
   if (isTextNode(node)) {
-    buffer.push(applyStyle(node.parentNode, node.textContent, win));
+    buffer.push(applyStyle(node, win));
   }
 }
 
@@ -145,8 +146,21 @@ function hasChildren(node) {
   return node.childNodes.length > 0;
 }
 
-function applyStyle(node, text, win) {
-  var style = isElement(node) ? win.getComputedStyle(node) : {};
+function applyStyle(textNode, win) {
+  var text = textNode.textContent,
+      parent = textNode.parentNode,
+      style = isElement(parent) ? win.getComputedStyle(parent) : {};
+
+  if (style.whiteSpace !== 'pre') {
+    text = text.replace(/\s+/g, ' ');
+
+    if (isFirstChild(textNode)) {
+      text = text.replace(/^\s/, '');
+    }
+    if (isLastChild(textNode)) {
+      text = text.replace(/\s$/, '');
+    }
+  }
 
   if (style.color) {
     var color = nearestColor(style.color);
@@ -187,6 +201,16 @@ function isElement(node) {
 
 function isTextNode(node) {
   return node && node.nodeType === 3;
+}
+
+function isFirstChild(textNode) {
+  return (textNode === textNode.parentNode.firstChild) &&
+    (textNode.parentNode === textNode.parentNode.parentNode.firstChild);
+}
+
+function isLastChild(textNode) {
+  return (textNode === textNode.parentNode.lastChild) &&
+    (textNode.parentNode === textNode.parentNode.parentNode.lastChild);
 }
 
 function forEach(collection, fn) {
