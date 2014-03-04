@@ -4,7 +4,7 @@
   "description": "HTML-styled console output",
   "main": "htmlout.js",
   "scripts": {
-    "test": "autodoc -t htmlout.js && mocha --compilers coffee:coffee-script/register"
+    "test": "mocha --compilers coffee:coffee-script/register"
   },
   "keywords": [
     "html",
@@ -17,7 +17,6 @@
     "nearest-color": "0.3.1"
   },
   "devDependencies": {
-    "autodoc": "~ 0.6.1",
     "coffee-script": "~ 1.7.1",
     "highlight.js": "~ 8.0.0",
     "mocha": "~ 1.17.1",

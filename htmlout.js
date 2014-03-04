@@ -79,15 +79,8 @@ var extendedColorsFile = path.join(__dirname, 'data', 'extendedColors.json'),
     nearestColor = require('nearest-color').from(supportedColors).or(invert(extendedColors));
 
 /**
- * @example
- * htmlout('<span style="color: #f24;">Hello</span>, <span style="color: #4f4;">world</span>!');
- * // => '\x1B[91mHello\x1B[39m, \x1B[92mworld\x1B[39m!'
- *
- * htmlout('<span style="text-decoration: underline;">foo</span>');
- * // => '\x1B[4mfoo\x1B[24m'
- *
- * htmlout('<html><style>.yellow { color: #ff4; }</style><span class="yellow">foo</span></html>');
- * // => '\x1B[93mfoo\x1B[39m'
+ * Takes an HTML string and outputs a string w/ escape sequences to style the
+ * text for console output.
  */
 function htmlout(html, options) {
   var doc = jsdom('<html><head></head><body></body></html>'),
