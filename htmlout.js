@@ -142,8 +142,8 @@ function output(node, win, buffer) {
     buffer.push(applyStyle(node, style, win));
   }
 
-  if (isElement(node) && (style.display === 'block')) {
-    ensureLineBreak(buffer);
+  if (isElement(node.previousSibling)) {
+    ensureLineBreakAfterBlock(buffer, getStyle(node.previousSibling, win));
   }
 }
 
@@ -243,16 +243,19 @@ function isLastChild(textNode) {
 }
 
 /**
- * Appends a new line to the buffer IF:
+ * Appends a new line to the buffer under all of the following conditions:
  *
  * 1. The last string pushed to the buffer wasn't already a newline
  * 2. The buffer isn't empty (no need for a line break before the first line)
+ * 3. The previous sibling was a block-level element
  *
  * @param {Array.<string>} buffer
  */
-function ensureLineBreak(buffer) {
+function ensureLineBreakAfterBlock(buffer, style) {
   if (buffer.length > 0 && (buffer[buffer.length - 1] !== '\n')) {
-    buffer.push('\n');
+    if (style.display === 'block') {
+      buffer.push('\n');
+    }
   }
 }
 
