@@ -46,6 +46,21 @@ describe 'htmlout', ->
       '''
     )
 
+  it 'inserts line breaks after block-level elements', ->
+    html =
+      '''
+      <div>
+        <p>Paragraph 1</p>
+        <p>Paragraph 2</p>
+      </div>
+      '''
+    htmlout(html).should.eql(
+      '''
+      Paragraph 1
+      Paragraph 1
+      '''
+    )
+
   it 'understands stylesheets', ->
     css =
       '''

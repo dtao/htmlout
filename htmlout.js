@@ -63,6 +63,7 @@ var styleSequences = {
 };
 
 var defaultStylesheet =
+  'p, div { display: block; }\n' +
   'b, strong { font-weight: bold; }\n' +
   'i, em { font-style: italic; }\n' +
   'u { text-decoration: underline; }\n' +
@@ -130,15 +131,19 @@ function output(node, win, buffer) {
     return;
   }
 
+  var style = getStyle(node, win);
+
   if (hasChildren(node)) {
     forEach(node.childNodes, function(child) {
       output(child, win, buffer);
     });
-    return;
+
+  } else if (isTextNode(node)) {
+    buffer.push(applyStyle(node, style));
   }
 
-  if (isTextNode(node)) {
-    buffer.push(applyStyle(node, win));
+  if (isElement(node) && (style.display === 'block')) {
+    ensureLineBreak(buffer);
   }
 }
 
@@ -146,10 +151,8 @@ function hasChildren(node) {
   return node.childNodes.length > 0;
 }
 
-function applyStyle(textNode, win) {
-  var text = textNode.textContent,
-      parent = textNode.parentNode,
-      style = isElement(parent) ? win.getComputedStyle(parent) : {};
+function applyStyle(textNode, style) {
+  var text = textNode.textContent;
 
   if (style.whiteSpace !== 'pre') {
     text = text.replace(/\s+/g, ' ');
@@ -203,6 +206,14 @@ function isTextNode(node) {
   return node && node.nodeType === 3;
 }
 
+function getStyle(node, win) {
+  if (isTextNode(node)) {
+    node = node.parentNode;
+  }
+
+  return isElement(node) ? win.getComputedStyle(node) : {};
+}
+
 function isFirstChild(textNode) {
   return (textNode === textNode.parentNode.firstChild) &&
     (textNode.parentNode === textNode.parentNode.parentNode.firstChild);
@@ -211,6 +222,20 @@ function isFirstChild(textNode) {
 function isLastChild(textNode) {
   return (textNode === textNode.parentNode.lastChild) &&
     (textNode.parentNode === textNode.parentNode.parentNode.lastChild);
+}
+
+/**
+ * Appends a new line to the buffer IF:
+ *
+ * 1. The last string pushed to the buffer wasn't already a newline
+ * 2. The buffer isn't empty (no need for a line break before the first line)
+ *
+ * @param {Array.<string>} buffer
+ */
+function ensureLineBreak(buffer) {
+  if (buffer.length > 0 && (buffer[buffer.length - 1] !== '\n')) {
+    buffer.push('\n');
+  }
 }
 
 function forEach(collection, fn) {
