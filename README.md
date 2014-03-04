@@ -21,6 +21,62 @@ Output:
 
 ![Console output](http://i.imgur.com/cqBE08b.png)
 
+You can even apply stylesheets. For instance, suppose you have the following CSS in a variable
+called `css`:
+
+```css
+.info {
+  color: blue;
+}
+
+.success {
+  color: lime;
+  text-decoration: underline;
+}
+
+.warning {
+  color: orange;
+  font-weight: bold;
+}
+
+.fail {
+  color: red;
+  background-color: yellow;
+  font-weight: bold;
+}
+```
+
+And then this is `html`:
+
+```html
+<p class="info">Here is some information.</p>
+<p class="success">The mission was a success!</p>
+<p class="warning">You are running low on fuel.</p>
+<p class="fail">System failure!</p>
+```
+
+Then you use `htmlout.withCSS`:
+
+```javascript
+var withStylesheet = htmlout.withCSS(css);
+console.log(withStylesheet(html));
+```
+
+Output:
+
+![Console output](http://i.imgur.com/UwdktNB.png)
+
+## Supported CSS Styles
+
+Obviously (well, at least without herculean effort), it isn't possible to support all CSS styles
+from a console. These are the styles that *are* at least partially supported:
+
+- `color`
+- `background-color`
+- `font-style` (`normal` or `italic` *on some terminals*)
+- `font-weight` (`normal` or `bold`)
+- `text-decoration` (`none`, `underline`, `strikethrough` *on some terminals*)
+
 ## Caveat
 
 I've barely just started this project. It is not even close to complete. It's like 1% functional.
