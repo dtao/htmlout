@@ -167,14 +167,18 @@ function applyStyle(textNode, style, win) {
 
   if (style.color) {
     var color = nearestColor(style.color);
-    var sequence = colorSequences[color.name];
-    text = applySequence(text, sequence);
+    if (color) {
+      var sequence = colorSequences[color.name];
+      text = applySequence(text, sequence);
+    }
   }
 
   if (style.backgroundColor) {
     var bgColor = nearestColor(style.backgroundColor);
-    var bgSequence = bgColorSequences[bgColor.name];
-    text = applySequence(text, bgSequence);
+    if (bgColor) {
+      var bgSequence = bgColorSequences[bgColor.name];
+      text = applySequence(text, bgSequence);
+    }
   }
 
   if (style.fontStyle === 'italic') {
