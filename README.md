@@ -7,9 +7,8 @@ This library lets you use (a very restricted subset of) HTML to style console ou
 Say you have this string in a variable called `html`:
 
 ```html
-<span style="color: #0f0">Hello!</span> <strong>This text should be bold.</strong>
-And then <strike>here we have struck-out text</strike>, <u>underlined text</u>, etc.
-</html>
+<p><span style="color: #0f0">Hello!</span> <strong>This text should be bold.</strong></p>
+<p>And then <strike>here we have struck-out text</strike>, <u>underlined text</u>, etc.</p>
 ```
 
 Now we pass that to `htmlout`:
