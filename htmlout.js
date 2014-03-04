@@ -174,7 +174,7 @@ function applyStyle(textNode, style, win) {
   if (style.backgroundColor) {
     var bgColor = nearestColor(style.backgroundColor);
     if (bgColor) {
-      var bgSequence = bgColorSequences[bgColor.name];
+      var bgSequence = getBGColorSequence(bgColor.name);
       text = applySequence(text, bgSequence);
     }
   }
@@ -211,6 +211,16 @@ function getColorSequence(name) {
 
   if (!sequence) {
     sequence = ['\x1B[38;5;' + name + 'm', '\x1B[39m'];
+  }
+
+  return sequence;
+}
+
+function getBGColorSequence(name) {
+  var sequence = bgColorSequences[name];
+
+  if (!sequence) {
+    sequence = ['\x1B[48;5;' + name + 'm', '\x1B[49m'];
   }
 
   return sequence;
