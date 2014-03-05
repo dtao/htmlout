@@ -78,6 +78,21 @@ from a console. These are the styles that *are* at least partially supported:
 - `text-decoration` (`none`, `underline`, `strikethrough` *on some terminals*)
 - `text-transform` (`none`, `uppercase`, `lowercase`, or `capitalize`)
 
-## Caveat
+## How it works
 
-I've barely just started this project. It is not even close to complete. It's like 1% functional.
+htmlout follows a relatively simple process:
+
+1. First, the HTML is parsed using [jsdom](https://github.com/tmpvar/jsdom), which provides a DOM
+   and handles stylesheets.
+2. htmlout then iterates over every text node of the DOM, translating the relevant CSS style rules
+   to terminal escape sequences. For example the CSS rule `font-weight: bold;` is translated to the
+   escape sequence `'\x1B[1m'` and `'\x1B[21m'`.
+3. The console does not support just any arbitrary color. htmlout uses
+   [nearest-color](https://github.com/dtao/nearest-color) to make a best effort to translate any
+   color in CSS to a valid escape sequence. This actually yields very good results, especially on
+   terminals that support 256 colors. (This isn't 100% implemented yet. Colors in hex or RGB format
+   should work; but for short names like 'aqua', only the 16 basic colors are supported right now.
+   HSL format isn't supported at all.)
+
+That's about it! If you have questions or run into issues,
+[let me know](https://github.com/dtao/htmlout/issues)!
