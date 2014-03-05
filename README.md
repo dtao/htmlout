@@ -66,6 +66,11 @@ Output:
 
 ![Console output](http://i.imgur.com/UwdktNB.png)
 
+This project is used by [console-highlight](https://github.com/dtao/console-highlight) to do syntax
+highlighting in the console. Here's an example:
+
+![Example output from console-highlight](http://i.imgur.com/MAu1uZJ.png)
+
 ## Supported CSS Styles
 
 Obviously (well, at least without herculean effort), it isn't possible to support all CSS styles
