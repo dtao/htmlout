@@ -61,6 +61,25 @@ describe 'htmlout', ->
       '''
     )
 
+  it 'splits color sequences across lines, if necessary', ->
+    css =
+      '''
+      pre { color: #0f0; }
+      '''
+    html =
+      '''
+      <pre>var foo = function() {
+        return 'blah';
+      };</pre>
+      '''
+    htmlout.withCSS(css)(html).should.eql(
+      '''
+      \x1B[92mvar foo = function() {\x1B[39m
+      \x1B[92m  return 'blah';\x1B[39m
+      \x1B[92m};\x1B[39m
+      '''
+    )
+
   # TODO: I'm not happy about this test. Need to revisit block behavior.
   it 'inserts line breaks after block-level elements', ->
     html =
@@ -71,6 +90,21 @@ describe 'htmlout', ->
       </div>
       '''
     htmlout(html).should.eql('Paragraph 1 \nParagraph 2\n')
+
+  it 'applies background color to the entire "box" for block elements', ->
+    html =
+      '''
+      <pre style="background-color: #000; color: #fff;">function greet() {
+        console.log('Hello!');
+      }</pre>
+      '''
+    htmlout(html).should.eql(
+      '''
+      \x1B[39m\x1B[40mfunction greet() {      \x1B[49m\x1B[39m
+      \x1B[39m\x1B[40m  console.log('Hello!');\x1B[49m\x1B[39m
+      \x1B[39m\x1B[40m}                       \x1B[49m\x1B[39m
+      '''
+    )
 
   it 'understands stylesheets', ->
     css =

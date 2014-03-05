@@ -63,7 +63,7 @@ var styleSequences = {
 };
 
 var defaultStylesheet =
-  'p, div { display: block; }\n' +
+  'p, div, pre { display: block; }\n' +
   'b, strong { font-weight: bold; }\n' +
   'i, em { font-style: italic; }\n' +
   'u { text-decoration: underline; }\n' +
@@ -83,8 +83,7 @@ var extendedColorsFile = path.join(__dirname, 'data', 'extendedColors.json'),
  * text for console output.
  */
 function htmlout(html, options) {
-  var doc = jsdom('<html><head></head><body></body></html>'),
-      win = doc.parentWindow;
+  var doc = jsdom('<html><head></head><body></body></html>');
 
   options || (options = {});
   options.css || (options.css = []);
@@ -100,7 +99,7 @@ function htmlout(html, options) {
 
   var buffer = [];
   forEach(doc.body.childNodes, function(node) {
-    output(node, win, buffer);
+    output(node, buffer);
   });
 
   return buffer.join('');
@@ -124,24 +123,24 @@ htmlout.withCSS = function withCSS(css) {
   return result;
 };
 
-function output(node, win, buffer) {
+function output(node, buffer) {
   if (node.nodeName === 'STYLE' || node.nodeName === 'SCRIPT') {
     return;
   }
 
-  var style = getStyle(node, win);
+  var style = getStyle(node);
 
   if (hasChildren(node)) {
     forEach(node.childNodes, function(child) {
-      output(child, win, buffer);
+      output(child, buffer);
     });
 
   } else if (isTextNode(node)) {
-    buffer.push(applyStyle(node, style, win));
+    buffer.push(applyStyle(node, style));
   }
 
   if (isElement(node.previousSibling)) {
-    ensureLineBreakAfterBlock(buffer, getStyle(node.previousSibling, win));
+    ensureLineBreakAfterBlock(buffer, getStyle(node.previousSibling));
   }
 }
 
@@ -149,10 +148,10 @@ function hasChildren(node) {
   return node.childNodes.length > 0;
 }
 
-function applyStyle(textNode, style, win) {
+function applyStyle(textNode, style) {
   var text = textNode.textContent;
 
-  if (findStyle(textNode, 'whiteSpace', win) !== 'pre') {
+  if (findStyle(textNode, 'whiteSpace') !== 'pre') {
     text = text.replace(/\s+/g, ' ');
 
     if (isFirstChild(textNode)) {
@@ -163,37 +162,47 @@ function applyStyle(textNode, style, win) {
     }
   }
 
-  if (style.color) {
-    var color = nearestColor(style.color);
-    if (color) {
-      var sequence = getColorSequence(color.name);
-      text = applySequence(text, sequence);
-    }
-  }
+  var lines = text.split('\n');
+  var maxLineLength = lines.reduce(function(max, line) {
+    return line.length > max ? line.length : max;
+  }, 0);
 
-  if (style.backgroundColor) {
-    var bgColor = nearestColor(style.backgroundColor);
+  var bgColor = findStyle(textNode, 'backgroundColor');
+  if (bgColor) {
+    bgColor = nearestColor(bgColor);
     if (bgColor) {
       var bgSequence = getBGColorSequence(bgColor.name);
-      text = applySequence(text, bgSequence);
+      lines = applySequence(lines, bgSequence, maxLineLength);
     }
   }
 
-  if (style.fontStyle === 'italic') {
-    text = applySequence(text, styleSequences.italic);
+  var color = findStyle(textNode, 'color');
+  if (color) {
+    color = nearestColor(color);
+    if (color) {
+      var sequence = getColorSequence(color.name);
+      lines = applySequence(lines, sequence);
+    }
   }
 
-  if (style.fontWeight === 'bold') {
-    text = applySequence(text, styleSequences.bold);
+  var fontStyle = findStyle(textNode, 'fontStyle');
+  if (fontStyle === 'italic') {
+    lines = applySequence(lines, styleSequences.italic);
   }
 
-  if (style.textDecoration === 'underline') {
-    text = applySequence(text, styleSequences.underline);
-  } else if (style.textDecoration === 'strikethrough') {
-    text = applySequence(text, styleSequences.strikethrough);
+  var fontWeight = findStyle(textNode, 'fontWeight');
+  if (fontWeight === 'bold') {
+    lines = applySequence(lines, styleSequences.bold);
   }
 
-  return text;
+  var textDecoration = findStyle(textNode, 'textDecoration');
+  if (textDecoration === 'underline') {
+    lines = applySequence(lines, styleSequences.underline);
+  } else if (textDecoration === 'strikethrough') {
+    lines = applySequence(lines, styleSequences.strikethrough);
+  }
+
+  return lines.join('\n');
 }
 
 /**
@@ -226,8 +235,14 @@ function getBGColorSequence(name) {
   return sequence;
 }
 
-function applySequence(text, sequence) {
-  return sequence[0] + text + sequence[1];
+function applySequence(lines, sequence, paddedWidth) {
+  return lines.map(function(line) {
+    if (paddedWidth) {
+      line = pad(line, paddedWidth);
+    }
+
+    return sequence[0] + line + sequence[1];
+  });
 }
 
 function isElement(node) {
@@ -238,30 +253,38 @@ function isTextNode(node) {
   return node && node.nodeType === 3;
 }
 
-function getStyle(node, win) {
+function getStyle(node) {
+  var view = node.ownerDocument.defaultView;
+
   if (isTextNode(node)) {
     node = node.parentNode;
   }
 
-  return isElement(node) ? win.getComputedStyle(node) : {};
+  return isElement(node) ? view.getComputedStyle(node) : {};
 }
 
-function findStyle(node, property, win) {
+function findStyle(node, property) {
+  var view = node.ownerDocument.defaultView;
+
   if (isTextNode(node)) {
     node = node.parentNode;
   }
 
-  var style = win.getComputedStyle(node);
-  while (!style[property]) {
+  var style = view.getComputedStyle(node);
+  while (styleMissing(style, property)) {
     node = node.parentNode;
     if (!isElement(node)) {
       break;
     }
 
-    style = win.getComputedStyle(node);
+    style = view.getComputedStyle(node);
   }
 
   return style[property];
+}
+
+function styleMissing(style, property) {
+  return !style[property];
 }
 
 function isFirstChild(textNode) {
@@ -304,6 +327,16 @@ function invert(object) {
     inverted[object[prop]] = prop;
   }
   return inverted;
+}
+
+/**
+ * TODO: Optimize this.
+ */
+function pad(string, width) {
+  while (string.length < width) {
+    string += ' ';
+  }
+  return string;
 }
 
 module.exports = htmlout;
