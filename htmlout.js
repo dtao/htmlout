@@ -128,15 +128,13 @@ function output(node, buffer) {
     return;
   }
 
-  var style = getStyle(node);
-
   if (hasChildren(node)) {
     forEach(node.childNodes, function(child) {
       output(child, buffer);
     });
 
   } else if (isTextNode(node)) {
-    buffer.push(applyStyle(node, style));
+    buffer.push(applyStyle(node));
   }
 
   if (isElement(node.previousSibling)) {
@@ -148,7 +146,7 @@ function hasChildren(node) {
   return node.childNodes.length > 0;
 }
 
-function applyStyle(textNode, style) {
+function applyStyle(textNode) {
   var text = textNode.textContent;
 
   if (findStyle(textNode, 'whiteSpace') !== 'pre') {
@@ -160,6 +158,22 @@ function applyStyle(textNode, style) {
     if (isLastChild(textNode)) {
       text = text.replace(/\s$/, '');
     }
+  }
+
+  switch (findStyle(textNode, 'textTransform')) {
+    case 'uppercase':
+      text = text.toUpperCase();
+      break;
+
+    case 'lowercase':
+      text = text.toLowerCase();
+      break;
+
+    case 'capitalize':
+      text = text.replace(/\b[a-z]/g, function(char) {
+        return char.toUpperCase();
+      });
+      break;
   }
 
   var lines = text.split('\n');

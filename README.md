@@ -76,6 +76,7 @@ from a console. These are the styles that *are* at least partially supported:
 - `font-style` (`normal` or `italic` *on some terminals*)
 - `font-weight` (`normal` or `bold`)
 - `text-decoration` (`none`, `underline`, `strikethrough` *on some terminals*)
+- `text-transform` (`none`, `uppercase`, `lowercase`, or `capitalize`)
 
 ## Caveat
 

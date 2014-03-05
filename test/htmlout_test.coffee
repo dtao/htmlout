@@ -125,6 +125,10 @@ describe 'htmlout', ->
       '\x1B[48;5;27mhowdy\x1B[49m'
     )
 
+  it 'can apply the text-transform property', ->
+    htmlout('<span style="text-transform: uppercase;">shout</span>')
+      .should.eql('SHOUT')
+
   it 'defaults <strong> and <b> elements to bold', ->
     htmlout('<strong>foo</strong> bar <b>baz</b>').should.eql(
       '\x1B[1mfoo\x1B[22m bar \x1B[1mbaz\x1B[22m'
