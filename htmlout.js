@@ -63,7 +63,7 @@ var styleSequences = {
 };
 
 var defaultStylesheet =
-  'p, div, pre { display: block; }\n' +
+  'div, h1, h2, h3, h4, h5, h6, p, pre { display: block; }\n' +
   'b, strong { font-weight: bold; }\n' +
   'i, em { font-style: italic; }\n' +
   'u { text-decoration: underline; }\n' +
@@ -134,12 +134,10 @@ function output(node, buffer) {
     });
 
   } else if (isTextNode(node)) {
-    buffer.push(applyStyle(node));
+    addToBuffer(buffer, applyStyle(node));
   }
 
-  if (isElement(node.previousSibling)) {
-    ensureLineBreakAfterBlock(buffer, getStyle(node.previousSibling));
-  }
+  ensureLineBreakBetweenBlocks(node, buffer);
 }
 
 function hasChildren(node) {
@@ -147,18 +145,7 @@ function hasChildren(node) {
 }
 
 function applyStyle(textNode) {
-  var text = textNode.textContent;
-
-  if (findStyle(textNode, 'whiteSpace') !== 'pre') {
-    text = text.replace(/\s+/g, ' ');
-
-    if (isFirstChild(textNode)) {
-      text = text.replace(/^\s/, '');
-    }
-    if (isLastChild(textNode)) {
-      text = text.replace(/\s$/, '');
-    }
-  }
+  var text = getText(textNode);
 
   switch (findStyle(textNode, 'textTransform')) {
     case 'uppercase':
@@ -267,7 +254,32 @@ function isTextNode(node) {
   return node && node.nodeType === 3;
 }
 
+function getText(textNode) {
+  var text = textNode.textContent;
+
+  if (findStyle(textNode, 'whiteSpace') !== 'pre') {
+    text = text.replace(/\s+/g, ' ');
+
+    if (isBetweenBlocks(textNode)) {
+      text = text.replace(/^\s+|\s+$/g, '');
+    } else {
+      if (isFirstChild(textNode)) {
+        text = text.replace(/^\s+/, '');
+      }
+      if (isLastChild(textNode)) {
+        text = text.replace(/\s+$/, '');
+      }
+    }
+  }
+
+  return text;
+}
+
 function getStyle(node) {
+  if (!node) {
+    return {};
+  }
+
   var view = node.ownerDocument.defaultView;
 
   if (isTextNode(node)) {
@@ -278,6 +290,10 @@ function getStyle(node) {
 }
 
 function findStyle(node, property) {
+  if (!node) {
+    return null;
+  }
+
   var view = node.ownerDocument.defaultView;
 
   if (isTextNode(node)) {
@@ -302,30 +318,53 @@ function styleMissing(style, property) {
 }
 
 function isFirstChild(textNode) {
-  return (textNode === textNode.parentNode.firstChild) &&
-    (textNode.parentNode === textNode.parentNode.parentNode.firstChild);
+  return textNode === textNode.parentNode.firstChild;
 }
 
 function isLastChild(textNode) {
-  return (textNode === textNode.parentNode.lastChild) &&
-    (textNode.parentNode === textNode.parentNode.parentNode.lastChild);
+  return textNode === textNode.parentNode.lastChild;
+}
+
+function isBlockElement(element) {
+  if (isTextNode(element)) {
+    return false;
+  }
+
+  var style = getStyle(element);
+  return style.display === 'block';
+}
+
+function isBetweenBlocks(node) {
+  return isBlockElement(node.previousSibling) && isBlockElement(node.nextSibling);
+}
+
+function addToBuffer(buffer, text) {
+  if (!text) { return; }
+  buffer.push(text);
 }
 
 /**
  * Appends a new line to the buffer under all of the following conditions:
  *
  * 1. The last string pushed to the buffer wasn't already a newline
- * 2. The buffer isn't empty (no need for a line break before the first line)
- * 3. The previous sibling was a block-level element
+ * 2. Either the previous sibling or next sibling is a block-level element
  *
  * @param {Array.<string>} buffer
  */
-function ensureLineBreakAfterBlock(buffer, style) {
-  if (buffer.length > 0 && (buffer[buffer.length - 1] !== '\n')) {
-    if (style.display === 'block') {
-      buffer.push('\n');
-    }
+function ensureLineBreakBetweenBlocks(node, buffer) {
+  if (!node.nextSibling) {
+    return;
   }
+
+  if (!isBlockElement(node.previousSibling) && !isBlockElement(node.nextSibling)) {
+    return;
+  }
+
+  if (buffer.length === 0 || buffer[buffer.length - 1] === '\n') {
+    return;
+  }
+
+  buffer.push('\n');
 }
 
 function forEach(collection, fn) {

@@ -22,10 +22,10 @@ describe 'htmlout', ->
   it 'defaults to treating whitespace as insignificant', ->
     html =
       '''
-        <p>
-          This is a paragraph.  It has two spaces after each sentence.  It also
-          has line breaks in it.  All of that should be collapsed.
-        </p>
+      <p>
+        This is a paragraph.  It has two spaces after each sentence.  It also
+        has line breaks in it.  All of that should be collapsed.
+      </p>
       '''
     htmlout(html).should.eql('This is a paragraph. It has two spaces after ' +
       'each sentence. It also has line breaks in it. All of that should be ' +
@@ -80,7 +80,6 @@ describe 'htmlout', ->
       '''
     )
 
-  # TODO: I'm not happy about this test. Need to revisit block behavior.
   it 'inserts line breaks after block-level elements', ->
     html =
       '''
@@ -89,7 +88,35 @@ describe 'htmlout', ->
         <p>Paragraph 2</p>
       </div>
       '''
-    htmlout(html).should.eql('Paragraph 1 \nParagraph 2\n')
+    htmlout(html).should.eql(
+      '''
+      Paragraph 1
+      Paragraph 2
+      '''
+    )
+
+  it 'inserts line breaks in the right places for', ->
+    html =
+      '''
+      <div>
+        <h1>Heading</h1>
+        <h2>Subheading</h2>
+        <div>
+          <span>Lorem</span> <span>Ipsum</span>
+        </div>
+        <p>Paragraph 1</p>
+        <p>Paragraph 2</p>
+      </div>
+      '''
+    htmlout(html).should.eql(
+      '''
+      Heading
+      Subheading
+      Lorem Ipsum
+      Paragraph 1
+      Paragraph 2
+      '''
+    )
 
   it 'applies background color to the entire "box" for block elements', ->
     html =
