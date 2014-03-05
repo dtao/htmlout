@@ -392,4 +392,6 @@ function pad(string, width) {
   return string;
 }
 
+htmlout.VERSION = '0.1.2';
+
 module.exports = htmlout;

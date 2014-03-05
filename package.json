@@ -1,6 +1,6 @@
 {
   "name": "htmlout",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "HTML-styled console output",
   "main": "htmlout.js",
   "scripts": {
@@ -19,6 +19,7 @@
   "devDependencies": {
     "coffee-script": "~ 1.7.1",
     "highlight.js": "~ 8.0.0",
+    "juxtapose": "~ 0.1.0",
     "mocha": "~ 1.17.1",
     "should": "~ 3.1.3"
   }
