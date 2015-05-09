@@ -72,21 +72,27 @@ var defaultStylesheet =
 
 var fs = require('fs'),
     path = require('path'),
-    jsdom = require('jsdom').jsdom;
+    jsdom = require('jsdom').jsdom,
+    ConsoleWriter = require('writer.js').ConsoleWriter;
 
 var extendedColorsFile = path.join(__dirname, 'data', 'extendedColors.json'),
     extendedColors = JSON.parse(fs.readFileSync(extendedColorsFile, 'utf8')),
     nearestColor = require('nearest-color').from(supportedColors).or(invert(extendedColors));
 
 /**
- * Takes an HTML string and outputs a string w/ escape sequences to style the
- * text for console output.
+ * Takes in HTML and writes out text w/ escape sequences to style the text for
+ * console output.
+ *
+ * By default this method writes directly to the console. To do something
+ * different (e.g. to write to a string) you can supply your own writer object
+ * (anything with a `write` method) in the options.
  */
 function htmlout(html, options) {
   var doc = jsdom('<html><head></head><body></body></html>');
 
   options || (options = {});
   options.css || (options.css = []);
+  options.writer || (options.writer = new ConsoleWriter());
 
   options.css.unshift(defaultStylesheet);
   options.css.forEach(function(css) {
@@ -99,10 +105,8 @@ function htmlout(html, options) {
 
   var buffer = [];
   forEach(doc.body.childNodes, function(node) {
-    output(node, buffer);
+    output(node, buffer, options.writer);
   });
-
-  return buffer.join('');
 }
 
 htmlout.withCSS = function withCSS(css) {
@@ -123,21 +127,30 @@ htmlout.withCSS = function withCSS(css) {
   return result;
 };
 
-function output(node, buffer) {
+/**
+ * It appears that I have done something weird here and actually implemented
+ * logic that makes use of the buffer, so I can't just get rid of it. (Well, I'm
+ * sure I can but it'll require a bit of time to refamiliarize myself with this
+ * code to understand WTF it's doing.)
+ *
+ * For now, whatever. I think it's fine to generate this giant buffer; writing
+ * to stdout as we go is still going to make the performance way better.
+ */
+function output(node, buffer, writer) {
   if (node.nodeName === 'STYLE' || node.nodeName === 'SCRIPT') {
     return;
   }
 
   if (hasChildren(node)) {
     forEach(node.childNodes, function(child) {
-      output(child, buffer);
+      output(child, buffer, writer);
     });
 
   } else if (isTextNode(node)) {
-    addToBuffer(buffer, applyStyle(node));
+    addToBuffer(buffer, applyStyle(node), writer);
   }
 
-  ensureLineBreakBetweenBlocks(node, buffer);
+  ensureLineBreakBetweenBlocks(node, buffer, writer);
 }
 
 function hasChildren(node) {
@@ -338,9 +351,10 @@ function isBetweenBlocks(node) {
   return isBlockElement(node.previousSibling) && isBlockElement(node.nextSibling);
 }
 
-function addToBuffer(buffer, text) {
+function addToBuffer(buffer, text, writer) {
   if (!text) { return; }
   buffer.push(text);
+  writer.write(text);
 }
 
 /**
@@ -350,8 +364,9 @@ function addToBuffer(buffer, text) {
  * 2. Either the previous sibling or next sibling is a block-level element
  *
  * @param {Array.<string>} buffer
+ * @param {{write: function(string):*}} writer
  */
-function ensureLineBreakBetweenBlocks(node, buffer) {
+function ensureLineBreakBetweenBlocks(node, buffer, writer) {
   if (!node.nextSibling) {
     return;
   }
@@ -365,6 +380,7 @@ function ensureLineBreakBetweenBlocks(node, buffer) {
   }
 
   buffer.push('\n');
+  writer.write('\n');
 }
 
 function forEach(collection, fn) {
