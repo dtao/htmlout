@@ -408,6 +408,6 @@ function pad(string, width) {
   return string;
 }
 
-htmlout.VERSION = '0.1.2';
+htmlout.VERSION = '0.2.0';
 
 module.exports = htmlout;

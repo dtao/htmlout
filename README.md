@@ -14,7 +14,7 @@ Say you have this string in a variable called `html`:
 Now we pass that to `htmlout`:
 
 ```javascript
-console.log(htmlout(html));
+htmlout(html);
 ```
 
 Output:
@@ -58,8 +58,7 @@ And then this is `html`:
 Then you use `htmlout.withCSS`:
 
 ```javascript
-var withStylesheet = htmlout.withCSS(css);
-console.log(withStylesheet(html));
+htmlout.withCSS(css)(html);
 ```
 
 Output:
